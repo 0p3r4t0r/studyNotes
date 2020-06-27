@@ -21,18 +21,40 @@ void main() {
       // ... well a widget with finite animations lasting less than 10 minutes.
       // https://api.flutter.dev/flutter/flutter_test/WidgetTester/pumpAndSettle.html
       await tester.pumpWidget(MyApp(loopAnimations: false));
+      await tapEncourageButton(tester);
       expect(tester.hasRunningAnimations, isTrue);
 
       await tester.pumpAndSettle();
       expect(tester.hasRunningAnimations, isFalse);
     });
 
-    testWidgets('everything loads correctly', (WidgetTester tester) async {
+    testWidgets('Everything loads', (WidgetTester tester) async {
       await tester.pumpWidget(MyApp());
 
       expect(find.byType(MyApp), findsOneWidget);
+      expect(find.byType(AppBar), findsOneWidget);
       expect(find.byType(AnimationPage), findsOneWidget);
       expect(find.byType(CompanionCubeImage), findsOneWidget);
+    });
+
+    testWidgets('Appbar title text', (WidgetTester tester) async {
+      await tester.pumpWidget(MyApp());
+
+      expect(find.text('Companion Cube'), findsOneWidget);
+    });
+
+    testWidgets('User input buttons', (WidgetTester tester) async {
+      await tester.pumpWidget(MyApp());
+
+      expect(find.byType(RaisedButton), findsOneWidget);
+    });
+  });
+
+  group('user input', () {
+    testWidgets('tapping the button starts animation',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(MyApp());
+      await tapEncourageButton(tester);
       expect(tester.hasRunningAnimations, isTrue);
     });
   });
@@ -40,9 +62,10 @@ void main() {
   group('Golden tests:', () {
     testWidgets('forward animation', (WidgetTester tester) async {
       await tester.runAsync(() async {
-        await tester.pumpWidget(createTestWidget());
+        await tester.pumpWidget(createGoldenTestWidget());
         await preloadImage(tester);
       });
+      await tapEncourageButton(tester);
 
       int numCheckFrames = 5;
       double checkTimeStepInSeconds = (animLengthInSeconds / numCheckFrames);
@@ -58,9 +81,10 @@ void main() {
 
     testWidgets('animation loops', (WidgetTester tester) async {
       await tester.runAsync(() async {
-        await tester.pumpWidget(createTestWidget());
+        await tester.pumpWidget(createGoldenTestWidget());
         await preloadImage(tester);
       });
+      await tapEncourageButton(tester);
 
       await expectLater(
           find.byType(MyApp), matchesGoldenFile('$goldensDir/seconds_0.png'));
@@ -77,14 +101,15 @@ void main() {
   group('Supposed to fail:', () {
     testWidgets('Widget with looping animations makes pumpAndSettle timeout',
         (WidgetTester tester) async {
-      await tester.pumpWidget(MyApp(loopAnimations: true));
+      await tester.pumpWidget(MyApp());
+      await tapEncourageButton(tester);
       await tester.pumpAndSettle();
     }, skip: true);
   });
 }
 
 // Ensure that image sizes will match.
-Widget createTestWidget() {
+Widget createGoldenTestWidget() {
   return Center(
     child: RepaintBoundary(
       child: MyApp(),
@@ -101,4 +126,17 @@ Future<void> preloadImage(WidgetTester tester) async {
     imageElement,
   );
   await tester.pump();
+}
+
+Future<void> tapEncourageButton(WidgetTester tester) async {
+  Finder encourageButtonFinder = find.byWidgetPredicate((widget) {
+    if (widget is RaisedButton && widget.child is Text) {
+      Text text = widget.child;
+      if (text.data == 'Encourage Me') {
+        return true;
+      }
+    }
+    return false;
+  });
+  await tester.tap(encourageButtonFinder);
 }

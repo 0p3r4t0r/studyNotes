@@ -38,24 +38,42 @@ class _AnimationPageState extends State<AnimationPage>
       end: 2 * math.pi,
     ).animate(curvedAnimation)
       ..addStatusListener((status) {
-        if ((widget.loopAnimations)) {
-          if (status == AnimationStatus.completed) {
-            animController.reverse();
-          } else if (status == AnimationStatus.dismissed) {
-            animController.forward();
-          }
+        if (status == AnimationStatus.completed) {
+          animController.reverse();
+        } else if (widget.loopAnimations &&
+            status == AnimationStatus.dismissed) {
+          animController.forward();
         }
       });
-
-    animController.forward();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: RotatingTransition(
-        angle: animation,
-        child: CompanionCubeImage(),
+      appBar: AppBar(
+        backgroundColor: Colors.grey,
+        centerTitle: true,
+        title: Text('Companion Cube'),
+      ),
+      body: Column(
+        children: [
+          Container(
+            child: RotatingTransition(
+              angle: animation,
+              child: CompanionCubeImage(),
+            ),
+            height: MediaQuery.of(context).size.height * (3 / 5),
+          ),
+          Container(
+            child: Center(
+              child: RaisedButton(
+                child: Text('Encourage Me'),
+                onPressed: () => animController.forward(),
+              ),
+            ),
+            height: MediaQuery.of(context).size.height * (1 / 7),
+          ),
+        ],
       ),
       backgroundColor: Colors.white,
     );

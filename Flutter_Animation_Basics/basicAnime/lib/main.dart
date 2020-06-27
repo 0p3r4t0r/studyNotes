@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:basicAnime/pages/basic_animation_page.dart';
 
-void main() => runApp(MyApp());
+void main() => runApp(MyApp(loopAnimations: false));
 
 class MyApp extends StatelessWidget {
   final bool loopAnimations;
