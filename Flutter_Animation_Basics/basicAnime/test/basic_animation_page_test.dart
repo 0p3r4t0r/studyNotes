@@ -20,7 +20,7 @@ void main() {
         (WidgetTester tester) async {
       // ... well a widget with finite animations lasting less than 10 minutes.
       // https://api.flutter.dev/flutter/flutter_test/WidgetTester/pumpAndSettle.html
-      await tester.pumpWidget(MyApp(loopAnimations: false));
+      await tester.pumpWidget(MyApp());
       await tapEncourageButton(tester);
       expect(tester.hasRunningAnimations, isTrue);
 
@@ -43,7 +43,7 @@ void main() {
       expect(find.text('Companion Cube'), findsOneWidget);
     });
 
-    testWidgets('User input buttons', (WidgetTester tester) async {
+    testWidgets('User input button', (WidgetTester tester) async {
       await tester.pumpWidget(MyApp());
 
       expect(find.byType(RaisedButton), findsOneWidget);
@@ -79,21 +79,19 @@ void main() {
       }
     });
 
-    testWidgets('animation loops', (WidgetTester tester) async {
+    testWidgets('multiple animations on multiple button presses',
+        (WidgetTester tester) async {
       await tester.runAsync(() async {
         await tester.pumpWidget(createGoldenTestWidget());
         await preloadImage(tester);
       });
-      await tapEncourageButton(tester);
-
-      await expectLater(
-          find.byType(MyApp), matchesGoldenFile('$goldensDir/seconds_0.png'));
 
       int numLoops = 2;
       for (int i = 0; i < numLoops; i++) {
-        await tester.pump(Duration(seconds: animLengthInSeconds));
         await expectLater(
-            find.byType(MyApp), matchesGoldenFile('$goldensDir/0_seconds.png'));
+            find.byType(MyApp), matchesGoldenFile('$goldensDir/seconds_0.png'));
+        await tapEncourageButton(tester);
+        await tester.pumpAndSettle();
       }
     });
   });
@@ -128,7 +126,7 @@ Future<void> preloadImage(WidgetTester tester) async {
   await tester.pump();
 }
 
-Future<void> tapEncourageButton(WidgetTester tester) async {
+Finder findEncourageButton() {
   Finder encourageButtonFinder = find.byWidgetPredicate((widget) {
     if (widget is RaisedButton && widget.child is Text) {
       Text text = widget.child;
@@ -138,5 +136,9 @@ Future<void> tapEncourageButton(WidgetTester tester) async {
     }
     return false;
   });
-  await tester.tap(encourageButtonFinder);
+  return encourageButtonFinder;
+}
+
+Future<void> tapEncourageButton(WidgetTester tester) async {
+  await tester.tap(findEncourageButton());
 }

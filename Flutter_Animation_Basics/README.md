@@ -1,3 +1,13 @@
+# Todo
+Add json files with encouraging phrases.
+Use flutter tts to have the cube speak to you
+
+
+# Encouraging Companion Cube
+
+A simple android app that shows the portal companion cube.
+Click the button to have the cube say nice things to you.
+
 ## Based On These ResoCoder Tutorials
 
 * [Flutter Animation Tutorial--Understand the Basics & Animate with Ease.][1]

@@ -7,7 +7,7 @@ void main() => runApp(MyApp(loopAnimations: false));
 class MyApp extends StatelessWidget {
   final bool loopAnimations;
   const MyApp({
-    this.loopAnimations: true,
+    this.loopAnimations: false,
   });
 
   @override

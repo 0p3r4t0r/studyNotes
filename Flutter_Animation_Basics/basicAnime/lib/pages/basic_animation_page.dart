@@ -18,10 +18,13 @@ class _AnimationPageState extends State<AnimationPage>
     with SingleTickerProviderStateMixin {
   Animation<double> animation;
   AnimationController animController;
+  bool _isButtonDisabled;
 
   @override
   void initState() {
     super.initState();
+
+    _isButtonDisabled = false;
     animController = AnimationController(
       vsync: this,
       duration: Duration(seconds: 5),
@@ -66,16 +69,36 @@ class _AnimationPageState extends State<AnimationPage>
           ),
           Container(
             child: Center(
-              child: RaisedButton(
-                child: Text('Encourage Me'),
-                onPressed: () => animController.forward(),
-              ),
+              child: _buildButton(),
             ),
             height: MediaQuery.of(context).size.height * (1 / 7),
           ),
         ],
       ),
       backgroundColor: Colors.white,
+    );
+  }
+
+  Widget _buildButton() {
+    animation
+      ..addStatusListener((status) {
+        if (status == AnimationStatus.dismissed) {
+          setState(() {
+            _isButtonDisabled = false;
+          });
+        }
+      });
+
+    _onPressed() {
+      animController.forward();
+      setState(() {
+        _isButtonDisabled = true;
+      });
+    }
+
+    return RaisedButton(
+      child: Text('Encourage Me'),
+      onPressed: _isButtonDisabled ? null : () => _onPressed(),
     );
   }
 
