@@ -1,12 +1,17 @@
+import 'dart:convert';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show rootBundle;
+import 'package:flutter_tts/flutter_tts.dart';
 
 import 'package:basicAnime/animations/companion_cube_image.dart';
 
 class AnimationPage extends StatefulWidget {
   final bool loopAnimations;
+  final bool canSpeak;
 
   const AnimationPage({
+    this.canSpeak: true,
     this.loopAnimations: true,
   });
 
@@ -19,12 +24,14 @@ class _AnimationPageState extends State<AnimationPage>
   Animation<double> animation;
   AnimationController animController;
   bool _isButtonDisabled;
+  FlutterTts _flutterTts = FlutterTts();
+  List _phrases;
+  final _random = math.Random();
 
   @override
   void initState() {
     super.initState();
 
-    _isButtonDisabled = false;
     animController = AnimationController(
       vsync: this,
       duration: Duration(seconds: 5),
@@ -48,6 +55,16 @@ class _AnimationPageState extends State<AnimationPage>
           animController.forward();
         }
       });
+
+    _isButtonDisabled = false;
+    _loadPhrases('assets/phrases/phrases.json').then((loadedPhrases) {
+      _phrases = loadedPhrases;
+    });
+  }
+
+  Future<List> _loadPhrases(String path) async {
+    String data = await rootBundle.loadString(path);
+    return jsonDecode(data).values.toList();
   }
 
   @override
@@ -94,6 +111,9 @@ class _AnimationPageState extends State<AnimationPage>
       setState(() {
         _isButtonDisabled = true;
       });
+      if (widget.canSpeak) {
+        _flutterTts.speak(_phrases[_random.nextInt(2)]);
+      }
     }
 
     return RaisedButton(
